@@ -29,3 +29,19 @@ spec:
       command: ['wget']
       args: ['{{ include "optima.auth.fullname" . }}:{{ .Values.auth.service.port }}']
   restartPolicy: Never
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "optima.account.fullname" . }}-test-connection"
+  labels:
+    {{- include "optima.account.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "optima.account.fullname" . }}:{{ .Values.account.service.port }}']
+  restartPolicy: Never

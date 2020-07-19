@@ -1,0 +1,65 @@
+{{- if .Values.account.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "optima.account.fullname" . }}
+  labels:
+    {{- include "optima.account.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.account.autoscaling.enabled }}
+  replicas: {{ .Values.account.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "optima.account.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.account.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "optima.account.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.account.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "optima.account.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.account.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.account.securityContext | nindent 12 }}
+          image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.account.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.account.service.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /accountsService/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /accountsService/health
+              port: http
+          env:
+            {{- toYaml .Values.account.environment | nindent 12 }}
+          resources:
+            {{- toYaml .Values.account.resources | nindent 12 }}
+      {{- with .Values.account.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.account.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.account.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

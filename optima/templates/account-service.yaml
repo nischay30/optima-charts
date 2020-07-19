@@ -1,0 +1,17 @@
+{{- if .Values.account.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "optima.account.fullname" . }}
+  labels:
+    {{- include "optima.account.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.account.service.type }}
+  ports:
+    - port: {{ .Values.account.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "optima.account.selectorLabels" . | nindent 4 }}
+{{- end }}

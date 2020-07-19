@@ -1,0 +1,28 @@
+{{- if .Values.account.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "optima.account.fullname" . }}
+  labels:
+    {{- include "optima.account.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "optima.account.fullname" . }}
+  minReplicas: {{ .Values.account.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.account.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.account.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.account.autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+  {{- if .Values.account.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.account.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+{{- end }}
