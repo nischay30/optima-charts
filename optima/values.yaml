@@ -15,7 +15,7 @@ db:
   imagePullSecrets: []
 
   image:
-    repository: gcr.io/project1-153912/optima-db
+    repository: gcr.io/project1-153912/optima-v1/db
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart version.
     tag: "latest"
