@@ -1,9 +1,6 @@
 # Default values for optima.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-webapp:
-account:
-payoutplan:
 offer:
 
 auth:
@@ -66,12 +63,11 @@ auth:
     enabled: true
     annotations:
       kubernetes.io/ingress.global-static-ip-name: "optima-static-ip"
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: auth.optima.nischay.co.uk
         paths:
         - /
+        - /authService/login/
 
     tls: []
     #  - secretName: chart-example-tls
@@ -148,7 +144,7 @@ account:
   securityContext: {}
 
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       kubernetes.io/ingress.global-static-ip-name: "optima-static-ip"
       # kubernetes.io/ingress.class: nginx
@@ -157,6 +153,7 @@ account:
       - host: account.optima.nischay.co.uk
         paths:
         - /
+        - /accountsService
 
     tls: []
     #  - secretName: chart-example-tls
@@ -170,6 +167,88 @@ account:
   tolerations: []
 
   affinity: {}
+
+
+
+################# PayOut Plan Service Started ######################
+payout:
+  enabled: true
+
+  replicaCount: 1
+
+  imagePullSecrets: []
+
+  image:
+    repository: gcr.io/project1-153912/optima-v1/payoutplan
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart version.
+    tag: "latest"
+
+  nameOverride: "optima-payout"
+  fullnameOverride: "optima-payout"
+
+  environment:
+    - name: PORT  #Container Inside port on which application will be running
+      value: "3000"
+    - name: dbService
+      value: "http://optima-db/dbService"
+
+  service:
+    type: NodePort
+    port: 80
+    containerPort: 3000 #Value must be same with the above defined env var "PORT"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: "sa-optima-payout"
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  securityContext: {}
+
+  ingress:
+    enabled: false
+    annotations:
+      kubernetes.io/ingress.global-static-ip-name: "optima-static-ip"
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: payout.optima.nischay.co.uk
+        paths:
+        - /
+        - /payOutPlanService
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+
+
+
 
 ################ DB SERVICE STARTED #################
 db:
