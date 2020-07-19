@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "{{ include "optima.fullname" . }}-test-connection"
   labels:
-{{ include "optima.labels" . | indent 4 }}
+    {{- include "optima.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args:  ['{{ include "optima.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "optima.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never

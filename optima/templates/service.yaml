@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "optima.fullname" . }}
   labels:
-{{ include "optima.labels" . | indent 4 }}
+    {{- include "optima.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,5 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/name: {{ include "optima.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "optima.selectorLabels" . | nindent 4 }}
