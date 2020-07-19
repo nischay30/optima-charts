@@ -121,3 +121,64 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*================== End DB Labels and Annotations ================*/}}
+
+
+{{/*================ Start Auth Labels and Annotations ================*/}}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "optima.auth.name" -}}
+{{- default .Chart.Name .Values.auth.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified DB name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "optima.auth.fullname" -}}
+{{- if .Values.auth.fullnameOverride }}
+{{- .Values.auth.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.auth.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "optima.auth.labels" -}}
+helm.sh/chart: {{ include "optima.chart" . }}
+{{ include "optima.auth.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "optima.auth.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "optima.auth.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "optima.auth.serviceAccountName" -}}
+{{- if .Values.auth.serviceAccount.create }}
+{{- default (include "optima.auth.fullname" .) .Values.auth.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.auth.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*================== End Auth Labels and Annotations ================*/}}
