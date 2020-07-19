@@ -66,8 +66,7 @@ auth:
     hosts:
       - host: auth.optima.nischay.co.uk
         paths:
-        - /
-        - /authService/login/
+        - /authService/login
 
     tls: []
     #  - secretName: chart-example-tls
