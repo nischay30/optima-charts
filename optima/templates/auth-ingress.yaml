@@ -1,6 +1,6 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "optima.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
+{{- if .Values.auth.ingress.enabled -}}
+{{- $fullName := include "optima.auth.fullname" . -}}
+{{- $svcPort := .Values.auth.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
@@ -10,15 +10,15 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "optima.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+    {{- include "optima.auth.labels" . | nindent 4 }}
+  {{- with .Values.auth.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.tls }}
+  {{- if .Values.auth.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls }}
+    {{- range .Values.auth.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
@@ -27,7 +27,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range .Values.auth.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
