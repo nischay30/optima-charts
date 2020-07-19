@@ -46,7 +46,7 @@ spec:
       args: ['{{ include "optima.account.fullname" . }}:{{ .Values.account.service.port }}']
   restartPolicy: Never
 
-  apiVersion: v1
+apiVersion: v1
 kind: Pod
 metadata:
   name: "{{ include "optima.payout.fullname" . }}-test-connection"
@@ -60,4 +60,20 @@ spec:
       image: busybox
       command: ['wget']
       args: ['{{ include "optima.payout.fullname" . }}:{{ .Values.payout.service.port }}']
+  restartPolicy: Never
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "optima.offer.fullname" . }}-test-connection"
+  labels:
+    {{- include "optima.offer.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "optima.offer.fullname" . }}:{{ .Values.offer.service.port }}']
   restartPolicy: Never

@@ -305,3 +305,63 @@ Create the name of the service account to use
 
 {{/*================== End PayOut Plan Labels and Annotations ================*/}}
 
+{{/*================ Start Offer Labels and Annotations ================*/}}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "optima.offer.name" -}}
+{{- default .Chart.Name .Values.offer.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified DB name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "optima.offer.fullname" -}}
+{{- if .Values.offer.fullnameOverride }}
+{{- .Values.offer.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.offer.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "optima.offer.labels" -}}
+helm.sh/chart: {{ include "optima.chart" . }}
+{{ include "optima.offer.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "optima.offer.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "optima.offer.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "optima.offer.serviceAccountName" -}}
+{{- if .Values.offer.serviceAccount.create }}
+{{- default (include "optima.offer.fullname" .) .Values.offer.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.offer.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*================== End Offer Labels and Annotations ================*/}}
+

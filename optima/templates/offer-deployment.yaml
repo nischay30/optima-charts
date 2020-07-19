@@ -1,0 +1,65 @@
+{{- if .Values.offer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "optima.offer.fullname" . }}
+  labels:
+    {{- include "optima.offer.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.offer.autoscaling.enabled }}
+  replicas: {{ .Values.offer.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "optima.offer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.offer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "optima.offer.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.offer.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "optima.offer.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.offer.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.offer.securityContext | nindent 12 }}
+          image: "{{ .Values.offer.image.repository }}:{{ .Values.offer.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.offer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.offer.service.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /offeringService/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /offeringService/health
+              port: http
+          env:
+            {{- toYaml .Values.offer.environment | nindent 12 }}
+          resources:
+            {{- toYaml .Values.offer.resources | nindent 12 }}
+      {{- with .Values.offer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.offer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.offer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

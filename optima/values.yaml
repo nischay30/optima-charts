@@ -2,6 +2,93 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 offer:
+  enabled: true
+
+  replicaCount: 1
+
+  imagePullSecrets: []
+
+  image:
+    repository: gcr.io/project1-153912/optima-v1/offer
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart version.
+    tag: "latest"
+
+  nameOverride: "optima-offer"
+  fullnameOverride: "optima-offer"
+
+  environment:
+    - name: PORT  #Container Inside port on which application will be running
+      value: "3000"
+    - name: dbService
+      value: "http://optima-db/dbService"
+
+  service:
+    type: NodePort
+    port: 80
+    containerPort: 3000 #Value must be same with the above defined env var "PORT"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: "sa-optima-offer"
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.global-static-ip-name: "optima-offer"
+    hosts:
+      - host: offer.optima.nischay.co.uk
+        paths:
+        - /offeringService/cardDetails
+        - /offeringService/advisory
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
 
 auth:
   enabled: true
@@ -62,7 +149,7 @@ auth:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.global-static-ip-name: "optima-static-ip"
+      kubernetes.io/ingress.global-static-ip-name: "optima-auth"
     hosts:
       - host: auth.optima.nischay.co.uk
         paths:
@@ -143,16 +230,18 @@ account:
   securityContext: {}
 
   ingress:
-    enabled: false
+    enabled: true
     annotations:
-      kubernetes.io/ingress.global-static-ip-name: "optima-static-ip"
+      kubernetes.io/ingress.global-static-ip-name: "optima-accounts"
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: account.optima.nischay.co.uk
         paths:
-        - /
-        - /accountsService
+        - /accountsService/credit
+        - /accountsService/debit
+        - /accountsService/totalBalances
+        - /accountsService/customizedMinBalance
 
     tls: []
     #  - secretName: chart-example-tls
@@ -221,16 +310,16 @@ payout:
   securityContext: {}
 
   ingress:
-    enabled: false
+    enabled: true
     annotations:
-      kubernetes.io/ingress.global-static-ip-name: "optima-static-ip"
+      kubernetes.io/ingress.global-static-ip-name: "optima-payout"
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: payout.optima.nischay.co.uk
         paths:
-        - /
-        - /payOutPlanService
+        - /payOutPlanService/makePayment
+        - /payOutPlanService/calculateBestMatch
 
     tls: []
     #  - secretName: chart-example-tls
@@ -244,9 +333,6 @@ payout:
   tolerations: []
 
   affinity: {}
-
-
-
 
 
 ################ DB SERVICE STARTED #################

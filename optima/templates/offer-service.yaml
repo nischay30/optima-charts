@@ -1,0 +1,17 @@
+{{- if .Values.offer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "optima.offer.fullname" . }}
+  labels:
+    {{- include "optima.offer.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.offer.service.type }}
+  ports:
+    - port: {{ .Values.offer.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "optima.offer.selectorLabels" . | nindent 4 }}
+{{- end }}
